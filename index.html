@@ -363,12 +363,27 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 
 <footer><div class="wrap"><span>© Маржинка, 2026</span><span>Сделано для мастеров, которые хотят зарабатывать</span></div></footer>
 
+<script async src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
 // Укажите имя своего бота без @
-const BOT = 'marzhinka_bot';
+const BOT = 'Marzhinka_bot';
+// Ссылка на бота: внутри Telegram открываем через Telegram, на телефоне сразу в приложении, на компьютере через t.me
+const tgApp = () => (window.Telegram && Telegram.WebApp && Telegram.WebApp.initData ? Telegram.WebApp : null);
+const MOBILE = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 document.querySelectorAll('.js-bot').forEach(a => {
-  a.href = 'https://t.me/' + BOT + (a.dataset.start ? '?start=' + a.dataset.start : '');
-  a.target = '_blank'; a.rel = 'noopener';
+  const st = a.dataset.start ? '?start=' + a.dataset.start : '';
+  const web = 'https://t.me/' + BOT + st;
+  a.href = web;
+  a.addEventListener('click', e => {
+    const TG = tgApp();
+    if (TG) { e.preventDefault(); TG.openTelegramLink(web); return; }
+    if (MOBILE) {
+      e.preventDefault();
+      const t = Date.now();
+      location.href = 'tg://resolve?domain=' + BOT + (a.dataset.start ? '&start=' + a.dataset.start : '');
+      setTimeout(() => { if (!document.hidden && Date.now() - t < 2500) location.href = web; }, 1500);
+    }
+  });
 });
 
 const CH = [['WB', 20, 80], ['Ozon', 18, 90], ['Avito', 0, 0]];
